@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  sv_database:
+    image: purawatzero/dpu_ct519_lab4:img_mariadb
+    container_name: ctn_mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: dbpassw0rd
+      MARIADB_DATABASE: lab4
+    volumes:
+      - ./mariadb:/var/lib/mysql
+    networks:
+      app_net:
+    ports:
+      - "3306:3306"
+
+  sv_adminer:
+    image: purawatzero/dpu_ct519_lab4:img_adminer
+    container_name: ctn_adminer
+    restart: always
+    networks:
+      app_net:
+    ports:
+      - "8081:8080"
+    
+  sv_webserver:
+    image: purawatzero/dpu_ct519_lab4:img_php
+    container_name: ctn_php
+    restart: always
+    networks:
+      app_net:
+    ports:
+      - "8080:80"
+    volumes:
+      - ./php/www/:/var/www/html
+      - ./php/conf.d/:/usr/local/etc/php/conf.d
+      - ./php/lib/:/usr/local/lib/php
+    links:
+      - "sv_database:database"
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
